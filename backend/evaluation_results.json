@@ -1,0 +1,25 @@
+{
+    "model": "Random Forest",
+    "accuracy": 0.56,
+    "precision": 0.5672,
+    "recall": 0.717,
+    "f1_score": 0.6333,
+    "roc_auc": 0.5411,
+    "confusion_matrix": [
+        [
+            18,
+            29
+        ],
+        [
+            15,
+            38
+        ]
+    ],
+    "best_parameters": {
+        "classifier__class_weight": null,
+        "classifier__max_depth": 5,
+        "classifier__min_samples_split": 5,
+        "classifier__n_estimators": 200
+    },
+    "cross_validation_f1": 0.5906784147426056
+}

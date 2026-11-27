@@ -1,0 +1,678 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartSense | Heart Disease Prediction</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">
+            <div class="brand-icon">
+                <i data-lucide="heart-pulse"></i>
+            </div>
+
+            <div class="brand-text">
+                <h2>HeartSense</h2>
+                <span>AI PREDICTION SYSTEM</span>
+            </div>
+        </div>
+
+        <div class="nav-label">MENU</div>
+
+        <nav class="navigation">
+            <button class="nav-item active" data-page="dashboard">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Dashboard</span>
+            </button>
+
+            <button class="nav-item" data-page="prediction">
+                <i data-lucide="activity"></i>
+                <span>Heart Prediction</span>
+            </button>
+
+            <button class="nav-item" data-page="analytics">
+                <i data-lucide="chart-no-axes-combined"></i>
+                <span>Model Analytics</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="model-status">
+                <span class="status-dot"></span>
+                <div>
+                    <strong>Model Status</strong>
+                    <small>Random Forest Active</small>
+                </div>
+            </div>
+
+            <div class="sidebar-disclaimer">
+                <i data-lucide="shield-alert"></i>
+                <p>Academic demonstration only. Not a medical diagnostic tool.</p>
+            </div>
+        </div>
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOP HEADER -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i data-lucide="menu"></i>
+                </button>
+
+                <div>
+                    <span class="breadcrumb">HeartSense /</span>
+                    <span class="current-page" id="currentPageTitle">Dashboard</span>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <div class="system-badge">
+                    <span class="status-dot"></span>
+                    System Online
+                </div>
+
+                <div class="profile">
+                    <div class="profile-avatar">HS</div>
+                    <div class="profile-info">
+                        <strong>Prediction System</strong>
+                        <small>Machine Learning</small>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+
+        <!-- DASHBOARD PAGE -->
+        <section class="page active" id="dashboardPage">
+
+            <div class="page-heading">
+                <div>
+                    <span class="eyebrow">OVERVIEW</span>
+                    <h1>Dashboard Overview</h1>
+                    <p>Monitor model performance and explore heart disease predictions.</p>
+                </div>
+
+                <button class="primary-button" onclick="showPage('prediction')">
+                    <i data-lucide="plus"></i>
+                    New Prediction
+                </button>
+            </div>
+
+
+            <!-- METRIC CARDS -->
+            <div class="metrics-grid">
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span>Model Accuracy</span>
+                        <div class="metric-icon blue">
+                            <i data-lucide="target"></i>
+                        </div>
+                    </div>
+
+                    <h2 id="accuracyMetric">--</h2>
+                    <p>Correct predictions on test data</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span>Precision</span>
+                        <div class="metric-icon teal">
+                            <i data-lucide="check-circle"></i>
+                        </div>
+                    </div>
+
+                    <h2 id="precisionMetric">--</h2>
+                    <p>Positive predictions correctly identified</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span>Recall</span>
+                        <div class="metric-icon orange">
+                            <i data-lucide="scan-search"></i>
+                        </div>
+                    </div>
+
+                    <h2 id="recallMetric">--</h2>
+                    <p>Actual positive cases identified</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span>F1 Score</span>
+                        <div class="metric-icon purple">
+                            <i data-lucide="chart-no-axes-column"></i>
+                        </div>
+                    </div>
+
+                    <h2 id="f1Metric">--</h2>
+                    <p>Balance between precision and recall</p>
+                </div>
+
+            </div>
+
+
+            <!-- CHARTS -->
+            <div class="charts-grid">
+
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>Model Performance</h3>
+                            <p>Evaluation metrics comparison</p>
+                        </div>
+
+                        <span class="chart-tag">TEST SET</span>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+
+
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>Confusion Matrix</h3>
+                            <p>Classification results</p>
+                        </div>
+
+                        <span class="chart-tag">RANDOM FOREST</span>
+                    </div>
+
+                    <div id="confusionMatrix" class="confusion-matrix">
+                        <div class="matrix-cell matrix-header"></div>
+                        <div class="matrix-cell matrix-header">Predicted Negative</div>
+                        <div class="matrix-cell matrix-header">Predicted Positive</div>
+
+                        <div class="matrix-cell matrix-label">Actual Negative</div>
+                        <div class="matrix-cell matrix-tn" id="tn">--</div>
+                        <div class="matrix-cell matrix-fp" id="fp">--</div>
+
+                        <div class="matrix-cell matrix-label">Actual Positive</div>
+                        <div class="matrix-cell matrix-fn" id="fn">--</div>
+                        <div class="matrix-cell matrix-tp" id="tp">--</div>
+                    </div>
+
+                    <div class="matrix-legend">
+                        <span><i class="legend-correct"></i> Correct prediction</span>
+                        <span><i class="legend-incorrect"></i> Incorrect prediction</span>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- MODEL SUMMARY -->
+            <div class="card model-summary">
+
+                <div class="summary-icon">
+                    <i data-lucide="brain"></i>
+                </div>
+
+                <div class="summary-content">
+                    <span class="eyebrow">SELECTED MODEL</span>
+                    <h3>Random Forest Classifier</h3>
+                    <p>
+                        The selected machine learning model uses an ensemble of
+                        decision trees to classify input data into heart disease
+                        and no heart disease categories.
+                    </p>
+                </div>
+
+                <div class="summary-details">
+                    <div>
+                        <span>CV F1 Score</span>
+                        <strong id="cvMetric">--</strong>
+                    </div>
+
+                    <div>
+                        <span>ROC-AUC</span>
+                        <strong id="aucMetric">--</strong>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- PREDICTION PAGE -->
+        <section class="page" id="predictionPage">
+
+            <div class="page-heading">
+                <div>
+                    <span class="eyebrow">MACHINE LEARNING</span>
+                    <h1>Heart Disease Prediction</h1>
+                    <p>Enter the patient information below to generate a model prediction.</p>
+                </div>
+            </div>
+
+
+            <div class="prediction-layout">
+
+                <!-- FORM -->
+                <div class="card prediction-form-card">
+
+                    <div class="card-header">
+                        <div>
+                            <h3>Patient Information</h3>
+                            <p>Complete all fields to generate a prediction.</p>
+                        </div>
+
+                        <div class="form-icon">
+                            <i data-lucide="clipboard-list"></i>
+                        </div>
+                    </div>
+
+
+                    <form id="predictionForm">
+
+                        <div class="form-section">
+                            <h4>
+                                <i data-lucide="user-round"></i>
+                                Personal Information
+                            </h4>
+
+                            <div class="form-grid">
+
+                                <div class="form-group">
+                                    <label for="age">Age <span>*</span></label>
+                                    <input type="number" id="age" name="age"
+                                           min="1" max="120" placeholder="e.g. 45" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="sex">Sex <span>*</span></label>
+                                    <select id="sex" name="sex" required>
+                                        <option value="">Select sex</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="bmi">Body Mass Index (BMI) <span>*</span></label>
+                                    <input type="number" id="bmi" name="bmi"
+                                           min="1" max="100" step="0.1"
+                                           placeholder="e.g. 24.5" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="physical_activity">Physical Activity Level <span>*</span></label>
+                                    <select id="physical_activity" name="physical_activity" required>
+                                        <option value="">Select level</option>
+                                        <option value="0">0 - Lowest</option>
+                                        <option value="1">1 - Low</option>
+                                        <option value="2">2 - Moderate</option>
+                                        <option value="3">3 - Active</option>
+                                        <option value="4">4 - Highest</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <div class="form-section">
+                            <h4>
+                                <i data-lucide="heart-pulse"></i>
+                                Health Indicators
+                            </h4>
+
+                            <div class="form-grid">
+
+                                <div class="form-group">
+                                    <label for="blood_pressure">Blood Pressure <span>*</span></label>
+                                    <input type="number" id="blood_pressure"
+                                           name="blood_pressure" min="1" max="300"
+                                           placeholder="e.g. 120" required>
+                                    <small>Enter systolic blood pressure (mmHg)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="cholesterol">Cholesterol <span>*</span></label>
+                                    <input type="number" id="cholesterol"
+                                           name="cholesterol" min="1" max="1000"
+                                           placeholder="e.g. 200" required>
+                                    <small>Enter total cholesterol (mg/dL)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="smoker">Smoking Status <span>*</span></label>
+                                    <select id="smoker" name="smoker" required>
+                                        <option value="">Select status</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="diabetes">Diabetes <span>*</span></label>
+                                    <select id="diabetes" name="diabetes" required>
+                                        <option value="">Select status</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="family_history">Family History <span>*</span></label>
+                                    <select id="family_history" name="family_history" required>
+                                        <option value="">Select status</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="stress_level">Stress Level <span>*</span></label>
+                                    <select id="stress_level" name="stress_level" required>
+                                        <option value="">Select level</option>
+                                        <option value="1">1 - Very Low</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3 - Low</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5 - Moderate</option>
+                                        <option value="6">6</option>
+                                        <option value="7">7 - High</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9 - Very High</option>
+                                    </select>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        <div class="form-actions">
+                            <button type="reset" class="secondary-button" id="resetButton">
+                                <i data-lucide="rotate-ccw"></i>
+                                Reset Form
+                            </button>
+
+                            <button type="submit" class="primary-button" id="predictButton">
+                                <i data-lucide="sparkles"></i>
+                                Generate Prediction
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+
+                <!-- RESULT PANEL -->
+                <div class="card result-card" id="resultCard">
+
+                    <div class="result-empty" id="resultEmpty">
+                        <div class="empty-icon">
+                            <i data-lucide="activity"></i>
+                        </div>
+
+                        <h3>Prediction Results</h3>
+
+                        <p>
+                            Complete the patient information form and click
+                            <strong>Generate Prediction</strong> to view the model's result.
+                        </p>
+
+                        <div class="result-note">
+                            <i data-lucide="info"></i>
+                            Results will appear here.
+                        </div>
+                    </div>
+
+
+                    <div class="result-content hidden" id="resultContent">
+
+                        <div class="result-status-icon" id="resultStatusIcon">
+                            <i data-lucide="heart-pulse"></i>
+                        </div>
+
+                        <span class="eyebrow">PREDICTION COMPLETE</span>
+
+                        <h2 id="resultTitle">Prediction Result</h2>
+
+                        <p id="resultDescription"></p>
+
+                        <div class="probability-section">
+                            <div class="probability-header">
+                                <span>Model Probability</span>
+                                <strong id="probabilityValue">0%</strong>
+                            </div>
+
+                            <div class="probability-bar">
+                                <div class="probability-fill" id="probabilityFill"></div>
+                            </div>
+                        </div>
+
+                        <div class="result-detail">
+                            <div>
+                                <span>Predicted Class</span>
+                                <strong id="predictedClass">--</strong>
+                            </div>
+
+                            <div>
+                                <span>Model Used</span>
+                                <strong>Random Forest</strong>
+                            </div>
+                        </div>
+
+                        <div class="result-disclaimer">
+                            <i data-lucide="shield-alert"></i>
+                            <p id="resultDisclaimer">
+                                This prediction is for academic demonstration only
+                                and is not a medical diagnosis.
+                            </p>
+                        </div>
+
+                        <button class="secondary-button full-width" id="newPredictionButton">
+                            <i data-lucide="refresh-cw"></i>
+                            New Prediction
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ANALYTICS PAGE -->
+        <section class="page" id="analyticsPage">
+
+            <div class="page-heading">
+                <div>
+                    <span class="eyebrow">MODEL EVALUATION</span>
+                    <h1>Model Analytics</h1>
+                    <p>Detailed evaluation of the selected machine learning model.</p>
+                </div>
+            </div>
+
+
+            <div class="metrics-grid analytics-metrics">
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span>Accuracy</span>
+                        <div class="metric-icon blue">
+                            <i data-lucide="target"></i>
+                        </div>
+                    </div>
+                    <h2 id="analyticsAccuracy">--</h2>
+                    <p>Overall correctness</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span>Precision</span>
+                        <div class="metric-icon teal">
+                            <i data-lucide="check-circle"></i>
+                        </div>
+                    </div>
+                    <h2 id="analyticsPrecision">--</h2>
+                    <p>Positive prediction quality</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span>Recall</span>
+                        <div class="metric-icon orange">
+                            <i data-lucide="scan-search"></i>
+                        </div>
+                    </div>
+                    <h2 id="analyticsRecall">--</h2>
+                    <p>Positive cases identified</p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-top">
+                        <span>ROC-AUC</span>
+                        <div class="metric-icon purple">
+                            <i data-lucide="chart-spline"></i>
+                        </div>
+                    </div>
+                    <h2 id="analyticsAuc">--</h2>
+                    <p>Class discrimination</p>
+                </div>
+
+            </div>
+
+
+            <div class="charts-grid">
+
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>Evaluation Metrics</h3>
+                            <p>Performance overview</p>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="analyticsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <div>
+                            <h3>Confusion Matrix</h3>
+                            <p>Test set classification</p>
+                        </div>
+                    </div>
+
+                    <div class="chart-container matrix-chart-container">
+                        <canvas id="matrixChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="card evaluation-table-card">
+
+                <div class="card-header">
+                    <div>
+                        <h3>Evaluation Summary</h3>
+                        <p>Final model test results</p>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th>Score</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                                <td>Accuracy</td>
+                                <td id="tableAccuracy">--</td>
+                                <td>Percentage of all predictions correctly classified.</td>
+                            </tr>
+
+                            <tr>
+                                <td>Precision</td>
+                                <td id="tablePrecision">--</td>
+                                <td>Percentage of predicted positive cases that were positive.</td>
+                            </tr>
+
+                            <tr>
+                                <td>Recall</td>
+                                <td id="tableRecall">--</td>
+                                <td>Percentage of actual positive cases identified.</td>
+                            </tr>
+
+                            <tr>
+                                <td>F1 Score</td>
+                                <td id="tableF1">--</td>
+                                <td>Harmonic mean of precision and recall.</td>
+                            </tr>
+
+                            <tr>
+                                <td>ROC-AUC</td>
+                                <td id="tableAuc">--</td>
+                                <td>Model's ability to distinguish between classes.</td>
+                            </tr>
+
+                            <tr>
+                                <td>Cross-validation F1</td>
+                                <td id="tableCv">--</td>
+                                <td>Mean F1 score across the training validation folds.</td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer class="footer">
+            <p>HeartSense &copy; 2026 | Heart Disease Prediction System</p>
+            <span>Powered by Machine Learning</span>
+        </footer>
+
+    </main>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
