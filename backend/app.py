@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import joblib
@@ -23,10 +22,17 @@ with open(os.path.join(BASE_DIR, "evaluation_results.json")) as file:
 
 @app.route("/", methods=["GET"])
 def home():
-    return jsonify({
-        "message": "Heart Disease Prediction API is running"
-    })
+    return send_from_directory(
+        os.path.join(os.path.dirname(BASE_DIR), "frontend"),
+        "index.html"
+    )
 
+@app.route("/<path:filename>")
+def frontend_files(filename):
+    return send_from_directory(
+        os.path.join(os.path.dirname(BASE_DIR), "frontend"),
+        filename
+    )
 
 @app.route("/metrics", methods=["GET"])
 def get_metrics():
